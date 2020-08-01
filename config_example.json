@@ -1,0 +1,5 @@
+{
+ "PaisNumber":"XXXXXX",
+ "TelegramToken":"<Token>",
+ "TelegramChatId":"<chat id (negative number)>"
+}
