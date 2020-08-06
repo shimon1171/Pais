@@ -1,6 +1,30 @@
 import json
+import codecs
 from PaisSubscriber import GetLotteryList
 from TelegramWrapper import TelegramWrapper
+
+lottery_log_file_name = 'lottery.log'
+
+def isLotteryExists(file_name, lotteryInfo):
+    logfile = codecs.open(file_name, 'rb', "iso-8859-8")
+    loglist = logfile.readlines()
+    logfile.close()
+
+    for line in loglist:
+        decoded_data = str(line) #.("iso-8859-8")
+        if str(lotteryInfo) in decoded_data:
+            return True
+
+    return False
+
+def addLotteryToFile(file_name, lotteryInfo):
+    logfile = open(file_name, 'ab')
+    encodelotteryInfo = str(lotteryInfo + "\n").encode("iso-8859-8")
+    # text = lotteryInfo.decode("cp1255")
+    # text = lotteryInfo.decode("cp862")
+    logfile.write(encodelotteryInfo)
+    logfile.close()
+
 
 def main():
     with open('config.json') as json_file:
@@ -12,6 +36,10 @@ def main():
 
     url = r'https://www.pais.co.il/subscriber/'
     lotteryInfo, LotteryList = GetLotteryList(url)
+
+    if(isLotteryExists(lottery_log_file_name, lotteryInfo)):
+        return
+
     winList = []
     for lottery in LotteryList:
         if (lottery.isWin(paisNumber)):
@@ -37,6 +65,7 @@ def main():
     else:
         msg = msg + " -\nמנוי מספר {} לא זכה.".format(paisNumber)
     telegramWrapper.send_message(msg)
+    addLotteryToFile(lottery_log_file_name, lotteryInfo)
 
 if __name__ == '__main__':
     main()
