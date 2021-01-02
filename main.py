@@ -1,3 +1,4 @@
+import sys
 import json
 import codecs
 from PaisSubscriber import GetLotteryList
@@ -26,8 +27,8 @@ def addLotteryToFile(file_name, lotteryInfo):
     logfile.close()
 
 
-def main():
-    with open('config.json') as json_file:
+def main(jsonFilePath):
+    with open(jsonFilePath) as json_file:
         data = json.load(json_file)
         paisNumber = str(data["PaisNumber"])
         # telegram credentials
@@ -35,6 +36,7 @@ def main():
         telegram_token = str(data["TelegramToken"])
 
     url = r'https://www.pais.co.il/subscriber/'
+    # url = r'https://www.pais.co.il/Subscriber/showMoreResults.aspx?fromIndex=0&amount=1&fromDate=2020&toDate=44/2020'
     lotteryInfo, LotteryList = GetLotteryList(url)
 
     if(isLotteryExists(lottery_log_file_name, lotteryInfo)):
@@ -67,7 +69,12 @@ def main():
     telegramWrapper.send_message(msg)
     addLotteryToFile(lottery_log_file_name, lotteryInfo)
 
-if __name__ == '__main__':
-    main()
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+if __name__ == "__main__":
+    print("Start")
+    if(len(sys.argv) != 2):
+        print("The script input is json file path, we will set the jsom file to local folder")
+        jsonFilePath = 'config.json'
+    else:
+        jsonFilePath = sys.argv[1]
+    print(jsonFilePath)
+    main(jsonFilePath)
